@@ -75,7 +75,14 @@ class LocationDataManager : NSObject, ObservableObject, CLLocationManagerDelegat
             return
         }
         let geocoder = CLGeocoder()
+        self.searchTerm = addressString
         geocoder.geocodeAddressString(addressString) { [weak self] (placemarks, error) in
+            guard self?.searchTerm == addressString else {
+                // protect against data return out of order
+                print("Latest search \(String(describing: self?.searchTerm)) does not match results \(addressString)")
+                return
+        
+            }
             if error == nil {
                 if let placemark = placemarks?[0] {
                     let location = placemark.location!
